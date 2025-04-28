@@ -1,0 +1,45 @@
+name: Deploy happywork-cms to Cloudflare Pages
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+      cloudflare-page-name:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: CHECKOUT CODE
+        uses: actions/checkout@v4
+
+      - name: SETUP PNPM
+        uses: pnpm/action-setup@v3
+        id: pnpm-install
+        with:
+          version: 10
+          run_install: true
+
+      - name: INSTALL NODEJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: INSTALL DEPENDENCIES
+        run: pnpm i --frozen-lockfile
+
+      - name: BUILD PROJECT
+        run: pnpm build
+
+      - name: DEPLOY TO CLOUDFLARE PAGES
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy --project-name=${{ inputs.cloudflare-page-name }} --branch ${{ inputs.branch }} ./
