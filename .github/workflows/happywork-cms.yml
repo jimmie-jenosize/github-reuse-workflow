@@ -9,6 +9,11 @@ on:
       cloudflare-page-name:
         required: true
         type: string
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
 
 jobs:
   deploy:
